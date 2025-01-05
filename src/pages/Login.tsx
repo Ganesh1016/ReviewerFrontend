@@ -1,10 +1,37 @@
 import { Button } from "@/components/ui/button";
+import { useGoogleLogin } from "@react-oauth/google";
+import axios from "axios";
 
 const Login = () => {
-  const handleGoogleSignIn = () => {
-    // Logic for Google sign-in (to be implemented later)
-    console.log("Google Sign-In clicked");
-  };
+  const handleGoogleSignIn = useGoogleLogin({
+    scope: "https://www.googleapis.com/auth/business.manage",
+    flow: "auth-code", // Use auth-code for offline access and backend exchange
+    onSuccess: async (response) => {
+      console.log("Google response:", response);
+
+      try {
+        // Send the authorization code to the backend
+        const { code } = response;
+        const result = await axios.post(
+          "http://localhost:7000/api/auth/google",
+          {
+            code,
+          }
+        );
+
+        console.log("Backend response:", result.data);
+
+        // Use result.data to navigate or store user information
+        alert("Successfully authenticated!");
+      } catch (error) {
+        console.error("Error communicating with the backend:", error);
+        alert("Failed to authenticate with Google.");
+      }
+    },
+    onError: () => {
+      console.error("Google Sign-In was unsuccessful");
+    },
+  });
 
   return (
     <div className="flex font-poppins flex-col items-center justify-center min-h-screen bg-white-500 text-center">
