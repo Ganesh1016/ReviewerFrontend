@@ -16,7 +16,6 @@ import {
 
 import { StatCard } from "@/components/stat-card";
 import { ReviewList } from "@/components/review-list";
-import { WordCloud } from "@/components/word-cloud";
 import { monthlyReviewData } from "@/lib/constants";
 import { TrendingUp } from "lucide-react";
 
@@ -119,19 +118,6 @@ const DashboardOverview = () => {
             </CardHeader>
             <CardContent>
               <ReviewList />
-            </CardContent>
-          </Card>
-
-          {/* Word Cloud */}
-          <Card className="col-span-6">
-            <CardHeader>
-              <CardTitle>Common Keywords</CardTitle>
-              <CardDescription>
-                Frequently mentioned words in reviews
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <WordCloud />
             </CardContent>
           </Card>
         </div>
