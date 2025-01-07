@@ -1,31 +1,62 @@
 import { Button } from "@/components/ui/button";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/redux/store/userSlice";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const handleGoogleSignIn = useGoogleLogin({
-    scope: "https://www.googleapis.com/auth/business.manage",
-    flow: "auth-code", // Use auth-code for offline access and backend exchange
     onSuccess: async (response) => {
       console.log("Google response:", response);
 
       try {
-        // Send the authorization code to the backend
-        const { code } = response;
-        const result = await axios.post(
-          "http://localhost:7000/api/auth/google",
+        const { access_token } = response;
+
+        // Fetch user info from Google API
+        const userInfo = await axios.get(
+          "https://www.googleapis.com/oauth2/v1/userinfo?alt=json",
           {
-            code,
+            headers: {
+              Authorization: `Bearer ${access_token}`,
+            },
+          }
+        );
+
+        console.log("Google User Info:", userInfo.data);
+
+        // Authenticate the user with your backend
+        const result = await axios.post(
+          "http://127.0.0.1:7000/api/auth/google",
+          {
+            email: userInfo.data.email,
           }
         );
 
         console.log("Backend response:", result.data);
 
-        // Use result.data to navigate or store user information
-        alert("Successfully authenticated!");
-      } catch (error) {
-        console.error("Error communicating with the backend:", error);
-        alert("Failed to authenticate with Google.");
+        // Dispatch user data to Redux store
+        dispatch(setUser(result.data));
+
+        // Save user data to local storage
+        localStorage.setItem("user", JSON.stringify(result.data));
+
+        navigate("/dashboard/overview");
+      } catch (error: unknown) {
+        console.error("Error authenticating user:", error);
+
+        if (axios.isAxiosError(error)) {
+          if (error.response?.status === 404) {
+            alert(error.response.data.detail);
+          } else {
+            alert("Failed to authenticate. Please try again.");
+          }
+        } else {
+          alert("An unexpected error occurred.");
+        }
       }
     },
     onError: () => {
@@ -42,7 +73,7 @@ const Login = () => {
         <p className="text-lg text-gray-600 mb-6">Let's get started</p>
         <Button
           className="bg-blue-500 text-white-500 hover:bg-blue-600 hover:text-white-800 font-medium px-6 py-3 rounded-md transition-all duration-300"
-          onClick={handleGoogleSignIn}
+          onClick={() => handleGoogleSignIn()}
         >
           Sign in with Google
         </Button>
