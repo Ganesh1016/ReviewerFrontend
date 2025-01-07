@@ -26,6 +26,7 @@ const ReplyToReviews = () => {
   const [selectedReview, setSelectedReview] =
     useState<SingleReviewResponse | null>(null);
   const [isMobileView, setIsMobileView] = useState(false);
+  const [isReviewLoading, setIsReviewLoading] = useState(false);
 
   return (
     <div className="min-h-screen lg:w-full bg-white-500 font-poppins">
@@ -59,27 +60,28 @@ const ReplyToReviews = () => {
         <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-2rem)]">
           {/* ReviewList - Hidden on mobile when reply section is active */}
           <div
-            className={`
-            w-full lg:w-2/4
-            ${isMobileView ? "hidden" : "block"} 
-            lg:block
-            transition-all duration-300 ease-in-out
-          `}
+            className={`w-full lg:w-2/4 ${
+              isMobileView ? "hidden" : "block"
+            } lg:block transition-all duration-300 ease-in-out`}
           >
-            <ReviewList setSelectedReview={setSelectedReview} />
+            <ReviewList
+              setSelectedReview={(review) => {
+                setIsReviewLoading(true); // Set loading state when fetching starts
+                setSelectedReview(review);
+                setTimeout(() => setIsReviewLoading(false), 500); // Simulate loading time
+              }}
+            />
           </div>
 
           {/* ReplySection - Hidden on mobile when review list is active */}
           <div
-            className={`
-            w-full lg:w-3/4
-            ${!isMobileView ? "hidden" : "block"}
-            lg:block
-            transition-all duration-300 ease-in-out
-          `}
+            className={`w-full lg:w-3/4 ${
+              !isMobileView ? "hidden" : "block"
+            } lg:block transition-all duration-300 ease-in-out`}
           >
             <ReplySection
               selectedReview={selectedReview}
+              isReviewLoading={isReviewLoading} // Pass the loading state here
               onBack={() => setIsMobileView(false)}
             />
           </div>

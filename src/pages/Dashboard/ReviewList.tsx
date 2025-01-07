@@ -30,6 +30,7 @@ type Location = {
 
 type Review = {
   _id: string;
+  name: string;
   reviewId: string;
   reviewer: {
     profilePhotoUrl: string;
@@ -191,28 +192,32 @@ const ReviewList = ({
               Latest customer feedback
             </p>
           </div>
-          <Select
-            onValueChange={(value) => setSelectedLocation(value)}
-            value={selectedLocation}
-          >
-            <SelectTrigger className="w-full sm:w-[120px] bg-white-500">
-              <SelectValue placeholder="Select Location" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Locations</SelectLabel>
-                {isLoadingLocations ? (
-                  <div className="px-4 py-2 text-sm">Loading locations...</div>
-                ) : (
-                  locations.map((location) => (
-                    <SelectItem key={location._id} value={location._id}>
-                      {location.locationName}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+          <div className="w-full sm:w-auto flex items-center justify-end">
+            <Select
+              onValueChange={(value) => setSelectedLocation(value)}
+              value={selectedLocation || undefined}
+            >
+              <SelectTrigger className="w-full sm:w-[200px] md:w-[250px] lg:w-[300px] max-w-full bg-white border border-gray-300 rounded-md focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                <SelectValue placeholder="Select Location" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Locations</SelectLabel>
+                  {isLoadingLocations ? (
+                    <div className="px-4 py-2 text-sm">
+                      Loading locations...
+                    </div>
+                  ) : (
+                    locations.map((location) => (
+                      <SelectItem key={location._id} value={location._id}>
+                        {location.locationName}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Filter Buttons */}
